@@ -2,13 +2,15 @@
   "items": [
     {
       "type": "image",
-      "url": "https://raw.githubusercontent.com/samcasey-brownfb/roku-tv-display/main/media/26%20def%20-%20pract%20habits.png",
-      "duration": 10
+      "url": "https://raw.githubusercontent.com/samcasey-brownfb/roku-tv-display/main/media/26%20def%20-%20pract%20habits.png"
     },
     {
       "type": "image",
-      "url": "https://raw.githubusercontent.com/samcasey-brownfb/roku-tv-display/main/media/26%20Def%20-%20Make%20Off%20Uncomfortable.png",
-      "duration": 10
+      "url": "https://raw.githubusercontent.com/samcasey-brownfb/roku-tv-display/main/media/26%20Def%20-%20Make%20Off%20Uncomfortable.png"
+    },
+    {
+      "type": "image",
+      "url": "https://raw.githubusercontent.com/samcasey-brownfb/roku-tv-display/main/media/26%20Def%20-%20fully%20charged%20philosophy.png"
     }
   ]
 }
