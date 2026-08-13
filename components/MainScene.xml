@@ -6,21 +6,13 @@
 
     <children>
 
-        <Rectangle
+        <Poster
+            id="displayImage"
             width="1280"
             height="720"
-            color="0x4E3629FF" />
-
-        <Label
-            id="titleLabel"
-            text="BROWN FOOTBALL TV"
-            width="1280"
-            height="100"
-            translation="[0,310]"
-            horizAlign="center"
-            vertAlign="center"
-            color="0xFFFFFFFF"
-            font="font:LargeBoldSystemFont" />
+            translation="[0,0]"
+            loadDisplayMode="scaleToFit"
+            uri="https://raw.githubusercontent.com/samcasey-brownfb/roku-tv-display/main/26%20def%20-%20pract%20habits.png" />
 
     </children>
 
