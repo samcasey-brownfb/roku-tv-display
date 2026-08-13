@@ -10,17 +10,14 @@ sub init()
     m.playlist = []
     m.currentIndex = 0
     m.activePoster = "A"
+    m.currentUrl = ""
     m.firstLoad = true
 
-    ' Slide rotation
     m.slideTimer.observeField("fire", "showNextItem")
-
-    ' GitHub refresh
     m.refreshTimer.observeField("fire", "refreshPlaylist")
 
     loadPlaylist()
 
-    ' Start checking GitHub every 60 seconds
     m.refreshTimer.control = "start"
 end sub
 
@@ -33,7 +30,6 @@ end sub
 
 
 sub refreshPlaylist()
-    ' Run a fresh background task without interrupting the slideshow
     loadPlaylist()
 end sub
 
@@ -45,9 +41,11 @@ sub onPlaylistLoaded()
         return
     end if
 
-    ' First time the app loads
+    newPlaylist = data.items
+
+    ' First app load
     if m.firstLoad = true
-        m.playlist = data.items
+        m.playlist = newPlaylist
         m.currentIndex = 0
         m.firstLoad = false
 
@@ -57,32 +55,38 @@ sub onPlaylistLoaded()
             m.posterA.uri = firstItem.url
             m.posterA.opacity = 1.0
             m.posterB.opacity = 0.0
+            m.currentUrl = firstItem.url
 
-            startSlideTimer(firstItem)
+            startSlideTimer()
         end if
 
         return
     end if
 
     ' Background refresh:
-    ' replace playlist without restarting the slideshow
-    m.playlist = data.items
+    ' keep showing the current image if it still exists
+    foundIndex = -1
 
-    ' Safety in case the new playlist has fewer items
-    if m.currentIndex >= m.playlist.Count()
+    for i = 0 to newPlaylist.Count() - 1
+        if newPlaylist[i].url = m.currentUrl
+            foundIndex = i
+            exit for
+        end if
+    end for
+
+    m.playlist = newPlaylist
+
+    if foundIndex >= 0
+        m.currentIndex = foundIndex
+    else
+        ' Current image was removed from GitHub
         m.currentIndex = 0
     end if
 end sub
 
 
-sub startSlideTimer(item)
-    duration = 10
-
-    if item.duration <> invalid
-        duration = item.duration
-    end if
-
-    m.slideTimer.duration = duration
+sub startSlideTimer()
+    m.slideTimer.duration = 10
     m.slideTimer.control = "start"
 end sub
 
@@ -123,5 +127,7 @@ sub showNextItem()
     end if
 
     m.currentIndex = nextIndex
-    startSlideTimer(item)
+    m.currentUrl = item.url
+
+    startSlideTimer()
 end sub
