@@ -22,15 +22,18 @@
             loadDisplayMode="scaleToFit"
             opacity="0.0" />
 
+        <!-- Controls the 10-second image rotation -->
         <Timer
             id="slideTimer"
             repeat="false" />
 
+        <!-- Checks GitHub /media for changes every 2 minutes -->
         <Timer
             id="refreshTimer"
-            duration="60"
+            duration="120"
             repeat="true" />
 
+        <!-- Crossfade from Poster A to Poster B -->
         <Animation
             id="fadeAToB"
             duration="0.6"
@@ -48,6 +51,7 @@
 
         </Animation>
 
+        <!-- Crossfade from Poster B back to Poster A -->
         <Animation
             id="fadeBToA"
             duration="0.6"
