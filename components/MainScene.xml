@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<component name="MainScene" extends="Scene">
+
+    <script type="text/brightscript" uri="pkg:/components/MainScene.brs" />
+
+    <children>
+
+        <Rectangle
+            width="1280"
+            height="720"
+            color="0x4E3629FF" />
+
+        <Label
+            id="titleLabel"
+            text="BROWN FOOTBALL TV"
+            width="1280"
+            height="100"
+            translation="[0,310]"
+            horizAlign="center"
+            vertAlign="center"
+            color="0xFFFFFFFF"
+            font="font:LargeBoldSystemFont" />
+
+    </children>
+
+</component>
