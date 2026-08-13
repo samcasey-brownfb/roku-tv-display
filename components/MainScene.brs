@@ -2,7 +2,9 @@ sub init()
     m.posterA = m.top.findNode("posterA")
     m.posterB = m.top.findNode("posterB")
     m.timer = m.top.findNode("slideTimer")
-    m.fadeAnimation = m.top.findNode("fadeAnimation")
+
+    m.fadeAToB = m.top.findNode("fadeAToB")
+    m.fadeBToA = m.top.findNode("fadeBToA")
 
     m.playlist = []
     m.currentIndex = 0
@@ -28,6 +30,7 @@ sub onPlaylistLoaded()
             m.posterA.uri = firstItem.url
             m.posterA.opacity = 1.0
             m.posterB.opacity = 0.0
+
             startTimer(firstItem)
         end if
     end if
@@ -67,7 +70,7 @@ sub showNextItem()
         m.posterA.opacity = 1.0
         m.posterB.opacity = 0.0
 
-        m.fadeAnimation.control = "start"
+        m.fadeAToB.control = "start"
 
         m.activePoster = "B"
     else
@@ -76,13 +79,7 @@ sub showNextItem()
         m.posterB.opacity = 1.0
         m.posterA.opacity = 0.0
 
-        fadeOut = m.fadeAnimation.findNode("fadeOut")
-        fadeIn = m.fadeAnimation.findNode("fadeIn")
-
-        fadeOut.fieldToInterp = "posterB.opacity"
-        fadeIn.fieldToInterp = "posterA.opacity"
-
-        m.fadeAnimation.control = "start"
+        m.fadeBToA.control = "start"
 
         m.activePoster = "A"
     end if
