@@ -11,8 +11,11 @@
             width="1280"
             height="720"
             translation="[0,0]"
-            loadDisplayMode="scaleToFit"
-            uri="https://raw.githubusercontent.com/samcasey-brownfb/roku-tv-display/main/26%20def%20-%20pract%20habits.png" />
+            loadDisplayMode="scaleToFit" />
+
+        <Timer
+            id="slideTimer"
+            repeat="false" />
 
     </children>
 
