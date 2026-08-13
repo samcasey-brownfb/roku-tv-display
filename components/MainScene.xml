@@ -7,15 +7,43 @@
     <children>
 
         <Poster
-            id="displayImage"
+            id="posterA"
             width="1280"
             height="720"
             translation="[0,0]"
-            loadDisplayMode="scaleToFit" />
+            loadDisplayMode="scaleToFit"
+            opacity="1.0" />
+
+        <Poster
+            id="posterB"
+            width="1280"
+            height="720"
+            translation="[0,0]"
+            loadDisplayMode="scaleToFit"
+            opacity="0.0" />
 
         <Timer
             id="slideTimer"
             repeat="false" />
+
+        <Animation
+            id="fadeAnimation"
+            duration="0.6"
+            repeat="false">
+
+            <FloatFieldInterpolator
+                id="fadeOut"
+                key="[0.0,1.0]"
+                keyValue="[1.0,0.0]"
+                fieldToInterp="posterA.opacity" />
+
+            <FloatFieldInterpolator
+                id="fadeIn"
+                key="[0.0,1.0]"
+                keyValue="[0.0,1.0]"
+                fieldToInterp="posterB.opacity" />
+
+        </Animation>
 
     </children>
 
