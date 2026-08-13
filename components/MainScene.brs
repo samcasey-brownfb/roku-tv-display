@@ -1,10 +1,10 @@
 sub init()
     m.poster = m.top.findNode("displayImage")
+    m.timer = m.top.findNode("slideTimer")
 
     m.playlist = []
     m.currentIndex = 0
 
-    m.timer = CreateObject("roSGNode", "Timer")
     m.timer.observeField("fire", "showNextItem")
 
     m.playlistTask = CreateObject("roSGNode", "PlaylistTask")
@@ -33,7 +33,6 @@ sub showCurrentItem()
         m.poster.uri = item.url
 
         duration = 10
-
         if item.duration <> invalid
             duration = item.duration
         end if
