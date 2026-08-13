@@ -1,7 +1,8 @@
 sub init()
     m.posterA = m.top.findNode("posterA")
     m.posterB = m.top.findNode("posterB")
-    m.timer = m.top.findNode("slideTimer")
+    m.slideTimer = m.top.findNode("slideTimer")
+    m.refreshTimer = m.top.findNode("refreshTimer")
 
     m.fadeAToB = m.top.findNode("fadeAToB")
     m.fadeBToA = m.top.findNode("fadeBToA")
@@ -9,20 +10,46 @@ sub init()
     m.playlist = []
     m.currentIndex = 0
     m.activePoster = "A"
+    m.firstLoad = true
 
-    m.timer.observeField("fire", "showNextItem")
+    ' Slide rotation
+    m.slideTimer.observeField("fire", "showNextItem")
 
+    ' GitHub refresh
+    m.refreshTimer.observeField("fire", "refreshPlaylist")
+
+    loadPlaylist()
+
+    ' Start checking GitHub every 60 seconds
+    m.refreshTimer.control = "start"
+end sub
+
+
+sub loadPlaylist()
     m.playlistTask = CreateObject("roSGNode", "PlaylistTask")
     m.playlistTask.observeField("playlistData", "onPlaylistLoaded")
     m.playlistTask.control = "RUN"
 end sub
 
+
+sub refreshPlaylist()
+    ' Run a fresh background task without interrupting the slideshow
+    loadPlaylist()
+end sub
+
+
 sub onPlaylistLoaded()
     data = m.playlistTask.playlistData
 
-    if data <> invalid and data.items <> invalid and data.items.Count() > 0
+    if data = invalid or data.items = invalid or data.items.Count() = 0
+        return
+    end if
+
+    ' First time the app loads
+    if m.firstLoad = true
         m.playlist = data.items
         m.currentIndex = 0
+        m.firstLoad = false
 
         firstItem = m.playlist[0]
 
@@ -31,21 +58,34 @@ sub onPlaylistLoaded()
             m.posterA.opacity = 1.0
             m.posterB.opacity = 0.0
 
-            startTimer(firstItem)
+            startSlideTimer(firstItem)
         end if
+
+        return
+    end if
+
+    ' Background refresh:
+    ' replace playlist without restarting the slideshow
+    m.playlist = data.items
+
+    ' Safety in case the new playlist has fewer items
+    if m.currentIndex >= m.playlist.Count()
+        m.currentIndex = 0
     end if
 end sub
 
-sub startTimer(item)
+
+sub startSlideTimer(item)
     duration = 10
 
     if item.duration <> invalid
         duration = item.duration
     end if
 
-    m.timer.duration = duration
-    m.timer.control = "start"
+    m.slideTimer.duration = duration
+    m.slideTimer.control = "start"
 end sub
+
 
 sub showNextItem()
     if m.playlist.Count() = 0
@@ -71,7 +111,6 @@ sub showNextItem()
         m.posterB.opacity = 0.0
 
         m.fadeAToB.control = "start"
-
         m.activePoster = "B"
     else
         m.posterA.uri = item.url
@@ -80,10 +119,9 @@ sub showNextItem()
         m.posterA.opacity = 0.0
 
         m.fadeBToA.control = "start"
-
         m.activePoster = "A"
     end if
 
     m.currentIndex = nextIndex
-    startTimer(item)
+    startSlideTimer(item)
 end sub
