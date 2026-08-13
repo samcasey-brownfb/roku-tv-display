@@ -24,9 +24,12 @@ sub loadPlaylist()
         return
     end if
 
+    ' Sort files alphabetically by filename
+    sortedFiles = sortFilesByName(files)
+
     playlist = []
 
-    for each file in files
+    for each file in sortedFiles
         if file.type = "file"
             name = LCase(file.name)
 
@@ -59,3 +62,30 @@ sub loadPlaylist()
         m.top.playlistData = result
     end if
 end sub
+
+
+function sortFilesByName(files as Object) as Object
+    sorted = []
+
+    for each file in files
+        inserted = false
+
+        if sorted.Count() = 0
+            sorted.Push(file)
+        else
+            for i = 0 to sorted.Count() - 1
+                if LCase(file.name) < LCase(sorted[i].name)
+                    sorted.Insert(i, file)
+                    inserted = true
+                    exit for
+                end if
+            end for
+
+            if inserted = false
+                sorted.Push(file)
+            end if
+        end if
+    end for
+
+    return sorted
+end function
