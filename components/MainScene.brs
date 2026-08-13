@@ -1,9 +1,12 @@
 sub init()
-    m.poster = m.top.findNode("displayImage")
+    m.posterA = m.top.findNode("posterA")
+    m.posterB = m.top.findNode("posterB")
     m.timer = m.top.findNode("slideTimer")
+    m.fadeAnimation = m.top.findNode("fadeAnimation")
 
     m.playlist = []
     m.currentIndex = 0
+    m.activePoster = "A"
 
     m.timer.observeField("fire", "showNextItem")
 
@@ -18,28 +21,27 @@ sub onPlaylistLoaded()
     if data <> invalid and data.items <> invalid and data.items.Count() > 0
         m.playlist = data.items
         m.currentIndex = 0
-        showCurrentItem()
+
+        firstItem = m.playlist[0]
+
+        if firstItem.type = "image"
+            m.posterA.uri = firstItem.url
+            m.posterA.opacity = 1.0
+            m.posterB.opacity = 0.0
+            startTimer(firstItem)
+        end if
     end if
 end sub
 
-sub showCurrentItem()
-    if m.playlist.Count() = 0
-        return
+sub startTimer(item)
+    duration = 10
+
+    if item.duration <> invalid
+        duration = item.duration
     end if
 
-    item = m.playlist[m.currentIndex]
-
-    if item.type = "image"
-        m.poster.uri = item.url
-
-        duration = 10
-        if item.duration <> invalid
-            duration = item.duration
-        end if
-
-        m.timer.duration = duration
-        m.timer.control = "start"
-    end if
+    m.timer.duration = duration
+    m.timer.control = "start"
 end sub
 
 sub showNextItem()
@@ -47,11 +49,44 @@ sub showNextItem()
         return
     end if
 
-    m.currentIndex = m.currentIndex + 1
+    nextIndex = m.currentIndex + 1
 
-    if m.currentIndex >= m.playlist.Count()
-        m.currentIndex = 0
+    if nextIndex >= m.playlist.Count()
+        nextIndex = 0
     end if
 
-    showCurrentItem()
+    item = m.playlist[nextIndex]
+
+    if item.type <> "image"
+        return
+    end if
+
+    if m.activePoster = "A"
+        m.posterB.uri = item.url
+
+        m.posterA.opacity = 1.0
+        m.posterB.opacity = 0.0
+
+        m.fadeAnimation.control = "start"
+
+        m.activePoster = "B"
+    else
+        m.posterA.uri = item.url
+
+        m.posterB.opacity = 1.0
+        m.posterA.opacity = 0.0
+
+        fadeOut = m.fadeAnimation.findNode("fadeOut")
+        fadeIn = m.fadeAnimation.findNode("fadeIn")
+
+        fadeOut.fieldToInterp = "posterB.opacity"
+        fadeIn.fieldToInterp = "posterA.opacity"
+
+        m.fadeAnimation.control = "start"
+
+        m.activePoster = "A"
+    end if
+
+    m.currentIndex = nextIndex
+    startTimer(item)
 end sub
