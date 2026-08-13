@@ -27,21 +27,36 @@
             repeat="false" />
 
         <Animation
-            id="fadeAnimation"
+            id="fadeAToB"
             duration="0.6"
             repeat="false">
 
             <FloatFieldInterpolator
-                id="fadeOut"
                 key="[0.0,1.0]"
                 keyValue="[1.0,0.0]"
                 fieldToInterp="posterA.opacity" />
 
             <FloatFieldInterpolator
-                id="fadeIn"
                 key="[0.0,1.0]"
                 keyValue="[0.0,1.0]"
                 fieldToInterp="posterB.opacity" />
+
+        </Animation>
+
+        <Animation
+            id="fadeBToA"
+            duration="0.6"
+            repeat="false">
+
+            <FloatFieldInterpolator
+                key="[0.0,1.0]"
+                keyValue="[1.0,0.0]"
+                fieldToInterp="posterB.opacity" />
+
+            <FloatFieldInterpolator
+                key="[0.0,1.0]"
+                keyValue="[0.0,1.0]"
+                fieldToInterp="posterA.opacity" />
 
         </Animation>
 
