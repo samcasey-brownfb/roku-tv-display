@@ -26,6 +26,11 @@
             id="slideTimer"
             repeat="false" />
 
+        <Timer
+            id="refreshTimer"
+            duration="60"
+            repeat="true" />
+
         <Animation
             id="fadeAToB"
             duration="0.6"
