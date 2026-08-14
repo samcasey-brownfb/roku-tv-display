@@ -4,6 +4,7 @@ sub init()
     m.posterB = m.top.findNode("posterB")
 
     m.slideTimer = m.top.findNode("slideTimer")
+    m.refreshTimer = m.top.findNode("refreshTimer")
 
     m.fadeAToB = m.top.findNode("fadeAToB")
     m.fadeBToA = m.top.findNode("fadeBToA")
@@ -13,22 +14,25 @@ sub init()
     m.nextIndex = 0
 
     m.activePoster = "A"
-
     m.currentUrl = ""
+
     m.firstImageLoaded = false
     m.waitingForNextImage = false
 
-
-    ' Rotate slides
     m.slideTimer.observeField("fire", "prepareNextItem")
+    m.refreshTimer.observeField("fire", "refreshPlaylist")
 
-
-    ' Watch Poster loading status
     m.posterA.observeField("loadStatus", "onPosterALoadStatus")
     m.posterB.observeField("loadStatus", "onPosterBLoadStatus")
 
+    loadPlaylist()
+    m.refreshTimer.control = "start"
 
-    ' Start persistent background GitHub task
+end sub
+
+
+sub loadPlaylist()
+
     m.playlistTask = CreateObject("roSGNode", "PlaylistTask")
 
     m.playlistTask.observeField(
@@ -40,6 +44,15 @@ sub init()
 
 end sub
 
+
+sub refreshPlaylist()
+
+    ' Fresh one-time GitHub request
+    ' Slideshow keeps running independently
+
+    loadPlaylist()
+
+end sub
 
 
 sub onPlaylistLoaded()
@@ -58,18 +71,16 @@ sub onPlaylistLoaded()
         return
     end if
 
-
     newPlaylist = data.items
 
 
-    '
-    ' FIRST PLAYLIST LOAD
-    '
+    ' -----------------------------
+    ' FIRST LOAD
+    ' -----------------------------
 
     if m.playlist.Count() = 0
 
         m.playlist = newPlaylist
-
         m.currentIndex = 0
 
         firstItem = m.playlist[0]
@@ -92,9 +103,9 @@ sub onPlaylistLoaded()
     end if
 
 
-    '
-    ' MEDIA FOLDER UPDATED
-    '
+    ' -----------------------------
+    ' BACKGROUND MEDIA REFRESH
+    ' -----------------------------
 
     foundIndex = -1
 
@@ -109,13 +120,10 @@ sub onPlaylistLoaded()
 
     end for
 
-
     m.playlist = newPlaylist
 
 
-    '
-    ' Keep current image if it still exists.
-    '
+    ' Keep slideshow position when possible
 
     if foundIndex >= 0
 
@@ -123,17 +131,14 @@ sub onPlaylistLoaded()
 
     else
 
-        '
-        ' Current image was deleted.
-        ' Move safely to first image on next rotation.
-        '
+        ' Current image was removed.
+        ' Next timer cycle starts at beginning.
 
         m.currentIndex = m.playlist.Count() - 1
 
     end if
 
 end sub
-
 
 
 sub onPosterALoadStatus()
@@ -143,9 +148,7 @@ sub onPosterALoadStatus()
     end if
 
 
-    '
-    ' INITIAL APP LOAD
-    '
+    ' Initial app image
 
     if m.firstImageLoaded = false
 
@@ -155,6 +158,7 @@ sub onPosterALoadStatus()
         m.posterB.opacity = 0.0
 
         m.activePoster = "A"
+        m.currentUrl = m.posterA.uri
 
         startSlideTimer()
 
@@ -163,9 +167,7 @@ sub onPosterALoadStatus()
     end if
 
 
-    '
-    ' Poster A was loaded as the NEXT image
-    '
+    ' Poster A is the hidden next image
 
     if m.waitingForNextImage = true and m.activePoster = "B"
 
@@ -176,7 +178,6 @@ sub onPosterALoadStatus()
 end sub
 
 
-
 sub onPosterBLoadStatus()
 
     if m.posterB.loadStatus <> "ready"
@@ -184,9 +185,7 @@ sub onPosterBLoadStatus()
     end if
 
 
-    '
-    ' Poster B was loaded as the NEXT image
-    '
+    ' Poster B is the hidden next image
 
     if m.waitingForNextImage = true and m.activePoster = "A"
 
@@ -197,14 +196,12 @@ sub onPosterBLoadStatus()
 end sub
 
 
-
 sub startSlideTimer()
 
     m.slideTimer.duration = 10
     m.slideTimer.control = "start"
 
 end sub
-
 
 
 sub prepareNextItem()
@@ -218,7 +215,6 @@ sub prepareNextItem()
 
 
     m.nextIndex = m.currentIndex + 1
-
 
     if m.nextIndex >= m.playlist.Count()
 
@@ -243,10 +239,8 @@ sub prepareNextItem()
     m.waitingForNextImage = true
 
 
-    '
+    ' Keep current Poster visible.
     ' Load next image invisibly.
-    ' Current image stays visible until next one is ready.
-    '
 
     if m.activePoster = "A"
 
@@ -263,7 +257,6 @@ sub prepareNextItem()
 end sub
 
 
-
 sub performFadeAToB()
 
     m.fadeAToB.control = "start"
@@ -278,7 +271,6 @@ sub performFadeAToB()
     startSlideTimer()
 
 end sub
-
 
 
 sub performFadeBToA()
