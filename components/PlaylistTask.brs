@@ -4,6 +4,7 @@ end sub
 
 
 sub loadMediaFolder()
+
     url = "https://api.github.com/repos/samcasey-brownfb/roku-tv-display/contents/media"
 
     request = CreateObject("roUrlTransfer")
@@ -29,6 +30,7 @@ sub loadMediaFolder()
     playlist = []
 
     for each file in files
+
         if file.type = "file"
 
             name = LCase(file.name)
@@ -43,13 +45,20 @@ sub loadMediaFolder()
             end if
 
             if isImage
+
+                encodedPath = encodePath(file.path)
+
+                stableUrl = "https://raw.githubusercontent.com/samcasey-brownfb/roku-tv-display/main/" + encodedPath
+
                 playlist.Push({
                     type: "image",
-                    url: file.download_url
+                    url: stableUrl
                 })
+
             end if
 
         end if
+
     end for
 
     if playlist.Count() > 0
@@ -57,4 +66,20 @@ sub loadMediaFolder()
             items: playlist
         }
     end if
+
 end sub
+
+
+function encodePath(path as String) as String
+
+    encoded = path
+
+    encoded = encoded.Replace("%", "%25")
+    encoded = encoded.Replace(" ", "%20")
+    encoded = encoded.Replace("+", "%2B")
+    encoded = encoded.Replace("#", "%23")
+    encoded = encoded.Replace("?", "%3F")
+
+    return encoded
+
+end function
