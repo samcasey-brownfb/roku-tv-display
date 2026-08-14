@@ -1,6 +1,7 @@
 sub init()
     m.posterA = m.top.findNode("posterA")
     m.posterB = m.top.findNode("posterB")
+
     m.slideTimer = m.top.findNode("slideTimer")
     m.refreshTimer = m.top.findNode("refreshTimer")
 
@@ -9,15 +10,20 @@ sub init()
 
     m.playlist = []
     m.currentIndex = 0
+    m.nextIndex = 0
+
     m.activePoster = "A"
     m.currentUrl = ""
     m.firstLoad = true
+    m.waitingForNextImage = false
 
-    m.slideTimer.observeField("fire", "showNextItem")
+    m.slideTimer.observeField("fire", "prepareNextItem")
     m.refreshTimer.observeField("fire", "refreshPlaylist")
 
-    loadPlaylist()
+    m.posterA.observeField("loadStatus", "onPosterALoadStatus")
+    m.posterB.observeField("loadStatus", "onPosterBLoadStatus")
 
+    loadPlaylist()
     m.refreshTimer.control = "start"
 end sub
 
@@ -43,7 +49,6 @@ sub onPlaylistLoaded()
 
     newPlaylist = data.items
 
-    ' First app load
     if m.firstLoad = true
         m.playlist = newPlaylist
         m.currentIndex = 0
@@ -52,19 +57,16 @@ sub onPlaylistLoaded()
         firstItem = m.playlist[0]
 
         if firstItem.type = "image"
-            m.posterA.uri = firstItem.url
-            m.posterA.opacity = 1.0
-            m.posterB.opacity = 0.0
             m.currentUrl = firstItem.url
 
-            startSlideTimer()
+            m.posterA.opacity = 0.0
+            m.posterB.opacity = 0.0
+            m.posterA.uri = firstItem.url
         end if
 
         return
     end if
 
-    ' Background refresh:
-    ' keep showing the current image if it still exists
     foundIndex = -1
 
     for i = 0 to newPlaylist.Count() - 1
@@ -79,8 +81,35 @@ sub onPlaylistLoaded()
     if foundIndex >= 0
         m.currentIndex = foundIndex
     else
-        ' Current image was removed from GitHub
         m.currentIndex = 0
+    end if
+end sub
+
+
+sub onPosterALoadStatus()
+    status = m.posterA.loadStatus
+
+    if status = "ready"
+        if m.firstLoad = false and m.currentUrl = m.posterA.uri and m.activePoster = "A" and m.waitingForNextImage = false
+            m.posterA.opacity = 1.0
+            startSlideTimer()
+            return
+        end if
+
+        if m.waitingForNextImage = true and m.activePoster = "B"
+            performFadeBToA()
+        end if
+    end if
+end sub
+
+
+sub onPosterBLoadStatus()
+    status = m.posterB.loadStatus
+
+    if status = "ready"
+        if m.waitingForNextImage = true and m.activePoster = "A"
+            performFadeAToB()
+        end if
     end if
 end sub
 
@@ -91,43 +120,55 @@ sub startSlideTimer()
 end sub
 
 
-sub showNextItem()
+sub prepareNextItem()
     if m.playlist.Count() = 0
         return
     end if
 
-    nextIndex = m.currentIndex + 1
+    m.nextIndex = m.currentIndex + 1
 
-    if nextIndex >= m.playlist.Count()
-        nextIndex = 0
+    if m.nextIndex >= m.playlist.Count()
+        m.nextIndex = 0
     end if
 
-    item = m.playlist[nextIndex]
+    item = m.playlist[m.nextIndex]
 
     if item.type <> "image"
+        startSlideTimer()
         return
     end if
 
+    m.waitingForNextImage = true
+
     if m.activePoster = "A"
-        m.posterB.uri = item.url
-
-        m.posterA.opacity = 1.0
         m.posterB.opacity = 0.0
-
-        m.fadeAToB.control = "start"
-        m.activePoster = "B"
+        m.posterB.uri = item.url
     else
-        m.posterA.uri = item.url
-
-        m.posterB.opacity = 1.0
         m.posterA.opacity = 0.0
-
-        m.fadeBToA.control = "start"
-        m.activePoster = "A"
+        m.posterA.uri = item.url
     end if
+end sub
 
-    m.currentIndex = nextIndex
-    m.currentUrl = item.url
+
+sub performFadeAToB()
+    m.fadeAToB.control = "start"
+
+    m.activePoster = "B"
+    m.currentIndex = m.nextIndex
+    m.currentUrl = m.posterB.uri
+    m.waitingForNextImage = false
+
+    startSlideTimer()
+end sub
+
+
+sub performFadeBToA()
+    m.fadeBToA.control = "start"
+
+    m.activePoster = "A"
+    m.currentIndex = m.nextIndex
+    m.currentUrl = m.posterA.uri
+    m.waitingForNextImage = false
 
     startSlideTimer()
 end sub
