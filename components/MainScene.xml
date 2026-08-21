@@ -6,6 +6,17 @@
 
     <children>
 
+        <!-- Silent looping video used to keep the Roku session active -->
+        <Video
+            id="keepAliveVideo"
+            width="1280"
+            height="720"
+            translation="[0,0]"
+            visible="true"
+            loop="true"
+            enableUI="false" />
+
+        <!-- Slideshow -->
         <Poster
             id="posterA"
             width="1280"
@@ -22,18 +33,15 @@
             loadDisplayMode="scaleToFit"
             opacity="0.0" />
 
-        <!-- Controls the 10-second image rotation -->
         <Timer
             id="slideTimer"
             repeat="false" />
 
-        <!-- Checks GitHub /media for changes every 2 minutes -->
         <Timer
             id="refreshTimer"
             duration="120"
             repeat="true" />
 
-        <!-- Crossfade from Poster A to Poster B -->
         <Animation
             id="fadeAToB"
             duration="0.6"
@@ -51,7 +59,6 @@
 
         </Animation>
 
-        <!-- Crossfade from Poster B back to Poster A -->
         <Animation
             id="fadeBToA"
             duration="0.6"
