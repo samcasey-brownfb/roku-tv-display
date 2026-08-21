@@ -1,4 +1,13 @@
 sub init()
+    ' Start silent looping keepalive video
+    m.keepAliveVideo = m.top.findNode("keepAliveVideo")
+
+    videoContent = CreateObject("roSGNode", "ContentNode")
+    videoContent.url = "pkg:/keepalive.mp4"
+    videoContent.streamFormat = "mp4"
+
+    m.keepAliveVideo.content = videoContent
+    m.keepAliveVideo.control = "play"
 
     m.posterA = m.top.findNode("posterA")
     m.posterB = m.top.findNode("posterB")
